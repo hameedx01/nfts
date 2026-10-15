@@ -1,4 +1,5 @@
 "use client";
+import { describeMintError } from "@/lib/mint-errors";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
@@ -99,19 +100,6 @@ export function MintForm() {
     }
     setFile(next);
   }
-  function describeError(e: unknown) {
-    const text = (e as Error).message || "";
-    return /reject|denied/i.test(text)
-      ? "You declined the wallet request. Your work is still here when you’re ready."
-      : /insufficient/i.test(text)
-        ? "Your wallet needs more Sepolia test ETH for the network fee."
-        : text.includes("HTTP") || text.includes("rpc")
-          ? "Could not reach Sepolia. Please try again."
-          : text
-              .split("Request Arguments:")[0]
-              .split("Details:")[0]
-              .slice(0, 240);
-  }
   async function upload() {
     if (!file || !address) return;
     setError("");
@@ -138,7 +126,7 @@ export function MintForm() {
         await api<UploadResult>("/api/upload", { method: "POST", body: form }),
       );
     } catch (e) {
-      setError(describeError(e));
+      setError(describeMintError(e));
     } finally {
       setStage("");
     }
@@ -202,7 +190,7 @@ export function MintForm() {
       setHash(tx);
       await confirm(tx);
     } catch (e) {
-      setError(describeError(e));
+      setError(describeMintError(e));
     } finally {
       setStage("");
     }
@@ -213,7 +201,7 @@ export function MintForm() {
     try {
       await confirm(hash);
     } catch (e) {
-      setError(describeError(e));
+      setError(describeMintError(e));
     } finally {
       setStage("");
     }
