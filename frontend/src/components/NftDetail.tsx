@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { api } from "@/lib/format";
-import { ipfsUrl } from "@/lib/ipfs";
+import { ipfsProxyUrl } from "@/lib/ipfs";
 import { CONTRACT, EXPLORER } from "@/lib/config";
 import type { Nft } from "@/types/nft";
 import { Artwork } from "./NftCard";
@@ -38,7 +38,7 @@ export function NftDetail({ id }: { id: string }) {
     );
   let metadataUrl: string | null = null;
   try {
-    metadataUrl = ipfsUrl(data.uri);
+    metadataUrl = ipfsProxyUrl(data.uri);
   } catch {}
   return (
     <section className="detail-section">

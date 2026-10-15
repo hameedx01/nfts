@@ -37,6 +37,7 @@ Names only; never commit credentials. Public addresses and the standard gateway 
 | `MAINNET_RPC_URL` | Server-only Ethereum mainnet RPC endpoint for ENS |
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Public Reown/WalletConnect project identifier for mobile pairing |
 | `NEXT_PUBLIC_NFT_CONTRACT_ADDRESS` | Public ClassNFT collection address |
+| `PINATA_GATEWAY_HOST` | Server-only Pinata gateway hostname used for metadata and artwork through `/api/ipfs` |
 | `NEXT_PUBLIC_IPFS_GATEWAY_URL` | Public HTTPS gateway base ending in `/ipfs/` |
 | `CHAINLINK_ETH_USD_FEED_ADDRESS` | Chainlink Sepolia ETH/USD aggregator address |
 | `UPSTASH_REDIS_REST_URL` | Server-only distributed upload-limit endpoint; required on Vercel |

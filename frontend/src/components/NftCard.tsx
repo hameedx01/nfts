@@ -5,13 +5,14 @@ import { ArrowUpRight, ImageOff } from "lucide-react";
 import { AddressDisplay } from "./AddressDisplay";
 import type { Nft } from "@/types/nft";
 export function Artwork({ nft }: { nft: Nft }) {
-  const [failed, setFailed] = useState(false);
+  const [failedImage, setFailedImage] = useState<string | null>(null);
+  const failed = Boolean(nft.image && failedImage === nft.image);
   return nft.image && !failed ? (
     <img
       src={nft.image}
       alt={nft.name}
       loading="lazy"
-      onError={() => setFailed(true)}
+      onError={() => setFailedImage(nft.image)}
     />
   ) : (
     <div className="art-unavailable">
