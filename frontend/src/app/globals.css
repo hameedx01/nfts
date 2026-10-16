@@ -1688,3 +1688,131 @@ main,
     transition: none !important;
   }
 }
+
+/* Day 4: account batching and live collection activity. */
+.smart-mint {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line, #d9d6cd);
+}
+.smart-mint h3 {
+  margin: 12px 0;
+  font-size: 24px;
+}
+.smart-mint p {
+  line-height: 1.6;
+  margin: 12px 0;
+}
+.smart-mint .text-link {
+  display: inline-block;
+  margin-top: 16px;
+}
+.smart-address,
+.operation-hash,
+.batch-result {
+  overflow-wrap: anywhere;
+}
+.smart-address {
+  font-size: 13px;
+}
+.batch-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin: 16px 0;
+}
+.alerts-page {
+  max-width: 1100px;
+  margin: auto;
+  padding: 70px 32px 100px;
+  min-height: 65vh;
+}
+.alerts-page h1 {
+  font-size: clamp(36px, 6vw, 68px);
+  margin: 18px 0;
+  letter-spacing: -2px;
+}
+.alerts-page > p {
+  line-height: 1.7;
+}
+.alerts-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 30px 0;
+}
+.alerts-toolbar .offline {
+  background: #999;
+}
+.alert-feed {
+  margin-top: 30px;
+}
+.alert-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 0;
+  border-bottom: 1px solid #d9d6cd;
+}
+.alert-card h2 {
+  font-size: 24px;
+  margin: 10px 0;
+}
+.alert-card p {
+  margin: 8px 0;
+}
+.alert-card > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+}
+.empty-alerts {
+  padding: 50px 0;
+}
+.alert-toasts {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 80;
+  display: grid;
+  gap: 12px;
+  width: min(360px, calc(100vw - 40px));
+  max-height: 75vh;
+  overflow-y: auto;
+}
+.alert-toast {
+  background: #22251f;
+  color: #fff;
+  padding: 20px;
+  box-shadow: 0 8px 32px #0003;
+}
+.alert-toast p {
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 10px 0;
+}
+.alert-toast button {
+  float: right;
+  color: white;
+  font-size: 24px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.alert-toast a {
+  color: #ffad79;
+}
+@media (max-width: 760px) {
+  .alerts-page {
+    padding: 40px 20px 70px;
+  }
+  .alert-card {
+    flex-direction: column;
+  }
+  .site-header nav {
+    gap: 20px;
+  }
+}

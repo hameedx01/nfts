@@ -34,6 +34,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
           >
             The collection
           </Link>
+          <Link
+            href="/alerts"
+            aria-current={path === "/alerts" ? "page" : undefined}
+          >
+            Live alerts
+          </Link>
         </nav>
         <WalletButton />
       </header>

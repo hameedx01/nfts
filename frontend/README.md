@@ -2,7 +2,7 @@
 
 A small NFT studio built for the Web3Bridge Day 3 assignment. Upload original artwork to public IPFS through a protected server route, mint it into the class collection on Sepolia, and browse editions with ENS owner names. Chainlink powers automatically refreshed ETH/USD reference prices and gas conversions.
 
-**Deployment:** Not deployed yet. Add the real Vercel production URL here after deployment and phone testing; no online completion is claimed.
+**Deployment:** [Edition Studio](https://nfts-lime.vercel.app/) · [Live alerts](https://nfts-lime.vercel.app/alerts). Day 4 deployment and a wallet-signed batch are tracked below.
 
 ## Run locally
 
@@ -121,3 +121,42 @@ The signed upload flow currently supports ordinary EOA wallet signatures; contra
 - The assignment's very short JWT-prefix scan matches a non-secret substring in the `big.js` package integrity checksum in `package-lock.json`. Do not remove or falsify integrity data to hide it. A literal zero-match result is therefore not yet satisfied; review this false positive with the mentor. No credential patterns were found in the files prepared for the initial commit; local environment files are excluded from version control.
 
 Real Pinata upload/mint, WalletConnect mobile pairing, and Vercel deployment remain unverified until services and a test wallet are configured.
+
+
+## Day 4: smart-account batch mint
+
+After uploading artwork, choose **Prepare smart account**, then **Mint 2 with smart account**. The connected EOA controls a Safe 1.4.1 account on Sepolia (EntryPoint v0.7, salt nonce 0). One `sendUserOperation` contains two zero-value `mint(uri)` calls to the existing ClassNFT; Safe MultiSendCallOnly executes both atomically. Both token IDs use the uploaded metadata and belong to the Safe, not directly to its owner EOA. The original single-wallet mint remains available.
+
+The browser signs through the connected wallet; no private key is generated or stored by the app. Pimlico sponsors gas through the configured policy. Sponsorship failure is shown explicitly; the app does not silently charge the owner. The first operation also deploys the Safe when necessary. Pending operation hashes are saved per owner/collection in browser storage, so reconnecting and uploading artwork again allows a receipt check without resubmitting.
+
+### Server configuration
+
+Add `PIMLICO_API_KEY` and `PIMLICO_SPONSORSHIP_POLICY_ID` to **Vercel Environment Variables**, for Preview and Production. The policy ID is not the webhook secret. Keep the API key only in Vercel: do not add it to `.env.local`, commit it, pull it to disk with Vercel CLI, or prefix it with `NEXT_PUBLIC_`. Local smart-account submission deliberately reports missing configuration; use the Vercel deployment for the real transaction.
+
+`/api/pimlico` authenticates upstream requests on the server, fixes the chain and EntryPoint, injects the server-selected sponsorship policy, and permits only the RPC methods this flow needs. It verifies the derived Safe sender and supplied deployment data, decodes both nested calls, rejects other contracts/functions/value transfers, and rate-limits through the existing Upstash configuration. Upstream errors are replaced with messages that cannot expose the API-key URL. Keep sponsorship policy budgets and per-user limits enabled; request checks and IP limits are not a substitute for a sponsorship budget.
+
+### UserOperation evidence — awaiting the owner's wallet signature
+
+No live UserOperation is claimed yet. After the first successful batch, use **Copy README evidence** in the app and replace this pending section with its real UserOperation hash, Etherscan transaction link, Safe address, paymaster address, actual gas cost, and both token IDs. A UserOperation hash is distinct from its containing transaction hash; `/tx/` links must use the latter.
+
+- **Who is in From?** On the containing Etherscan transaction, From is the bundler's submitting EOA. Within the UserOperation, the sender is the user's Safe smart account.
+- **Who is in To?** The containing transaction targets the ERC-4337 EntryPoint (`0x0000000071727De22E5E9d8BAf0edAc6f37da032`). The Safe executes the two inner calls against [ClassNFT](https://sepolia.etherscan.io/address/0x3fb98718010365fc227eb09e1af85988991b2ad1).
+- **Who paid gas?** This flow requests sponsorship: the bundler fronts the transaction gas, then receives compensation through EntryPoint from the paymaster's deposit. The app displays the actual receipt's paymaster address and UserOperation gas cost; the real evidence must confirm sponsorship rather than assuming it from a successful submission.
+
+### Live alerts and ENS
+
+`/alerts` reads the collection's `Minted` events every four seconds through `/api/events`. Initial recent events are shown without notifications; new events produce individual feed entries and in-page pop-ups, including both mints in a batch. Click **Enable browser notifications** to grant browser permission; a service worker displays notifications on supported browsers. Denied/unsupported notifications leave the visible feed and in-page pop-ups working.
+
+Recipients resolve through the existing mainnet ENS endpoint, which verifies reverse names with a forward lookup. Addresses without a verified primary ENS name remain addresses; the owner's ENS identity is never substituted for the Safe's identity. An ENS-enabled recipient is required to demonstrate a real name. Logs are deduplicated by transaction hash and log index. The page retains a block cursor across transient failures and catches up in bounded ranges; it shows at most 100 entries. These are newly observed logs, not finality guarantees; a production indexer must reconcile reorganizations.
+
+**Why does this only work while the page is open?** The page runs the polling loop, so closing it stops event detection; its notification service worker is not a background blockchain listener. A real product would use a persistent backend indexer or managed event service, store its block cursor and notification records, and handle retries, duplicate events, and reorganizations. It would send Web Push, email, or other subscribed notifications independently of the open page.
+
+### Day 4 acceptance checks
+
+- [ ] Production `/alerts` and the smart-account controls are deployed.
+- [ ] One real sponsored UserOperation succeeds and emits two collection `Minted` events.
+- [ ] Both `ownerOf` reads return the Safe address.
+- [ ] The real Etherscan evidence replaces the pending section above.
+- [ ] Live feed displays two separate events; verified ENS appears where configured.
+- [ ] Browser notification permission, denial fallback, and mobile layout are checked.
+- [ ] No Pimlico credential appears in source, browser bundles, or browser requests.

@@ -68,3 +68,35 @@ export async function consumeUpload(
     local.set(replay, { count: 1, until: now + 600000 });
   }
 }
+
+export async function consumePimlico(ip: string) {
+  const key = `edition:pimlico:${ip}:${Math.floor(Date.now() / 60000)}`;
+  if (
+    process.env.UPSTASH_REDIS_REST_URL &&
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  ) {
+    const count = await redis([
+      "EVAL",
+      "local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('EXPIRE',KEYS[1],60) end; return n",
+      1,
+      key,
+    ]);
+    if (count > 120)
+      throw new PublicError(
+        "Too many account requests. Wait a minute and retry.",
+        429,
+      );
+  } else {
+    if (process.env.VERCEL)
+      throw new PublicError(
+        "Smart-account request protection is not configured.",
+        503,
+      );
+    const now = Date.now();
+    for (const [id, entry] of local) if (entry.until < now) local.delete(id);
+    const entry = local.get(key) || { count: 0, until: now + 60000 };
+    if (++entry.count > 120)
+      throw new PublicError("Too many requests. Wait a minute.", 429);
+    local.set(key, entry);
+  }
+}

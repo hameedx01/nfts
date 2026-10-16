@@ -28,6 +28,7 @@ import { ipfsUrl } from "@/lib/ipfs";
 import { useEthPrice } from "@/hooks/useEthPrice";
 import { WalletButton } from "./WalletButton";
 import { AddressDisplay } from "./AddressDisplay";
+import { SmartAccountMint } from "./SmartAccountMint";
 type UploadResult = { uri: string; imageUri: string };
 export function MintForm() {
   const { address, chainId } = useConnection();
@@ -56,7 +57,8 @@ export function MintForm() {
     Date.now() / 1000 - price.data.updatedAt <= FEED_MAX_AGE
       ? price.data.price
       : null;
-  const busy = Boolean(stage);
+  const [smartBusy, setSmartBusy] = useState(false);
+  const busy = Boolean(stage) || smartBusy;
   useEffect(() => {
     if (!file) {
       setPreview("");
@@ -469,6 +471,14 @@ export function MintForm() {
                 </button>
               )}
             </>
+          )}
+          {uploaded && address && !hash && tokenId === null && (
+            <SmartAccountMint
+              key={address}
+              uri={uploaded.uri}
+              disabled={Boolean(stage)}
+              onBusy={setSmartBusy}
+            />
           )}
           {error && (
             <div className="error-notice" role="alert">
