@@ -1,8 +1,9 @@
-import { readNft } from "@/lib/server/nfts";
+import { readNft, readNfts } from "@/lib/server/nfts";
 import { sepoliaClient } from "@/lib/server/clients";
 import { classNftAbi } from "@/lib/contracts/classNftAbi";
 import { CONTRACT } from "@/lib/config";
 import { failure, PublicError } from "@/lib/server/response";
+export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   try {
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
     const ids = Array.from({ length: 9 }, (_, i) => start - BigInt(i)).filter(
       (id) => id >= 0n,
     );
-    const items = await Promise.all(ids.map(readNft));
+    const items = await readNfts(ids);
     return Response.json(
       { items, total: total.toString(), hasMore: start >= 9n },
       { headers: { "Cache-Control": "no-store" } },

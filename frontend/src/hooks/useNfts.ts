@@ -9,6 +9,11 @@ export function useNfts(page = 0) {
       api<{ items: Nft[]; total: string; hasMore: boolean }>(
         `/api/nfts?page=${page}`,
       ),
-    refetchInterval: 60000,
+    refetchInterval: 15000,
+    staleTime: 10000,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    retry: 2,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 5000),
   });
 }

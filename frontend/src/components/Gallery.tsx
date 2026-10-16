@@ -39,6 +39,12 @@ export function Gallery({ preview = false }: { preview?: boolean }) {
           every image lives on IPFS.
         </p>
       )}
+      {error && data && (
+        <p className="error-notice" role="status">
+          Refresh interrupted. Showing the last loaded collection and retrying
+          automatically.
+        </p>
+      )}
       {isPending ? (
         <div className="gallery-grid" aria-label="Loading collection">
           {[0, 1, 2].map((n) => (
@@ -49,11 +55,14 @@ export function Gallery({ preview = false }: { preview?: boolean }) {
             </div>
           ))}
         </div>
-      ) : error ? (
+      ) : error && !data ? (
         <div className="empty-state">
           <span className="eyebrow">COLLECTION UNAVAILABLE</span>
           <h3>We couldn’t reach the chain.</h3>
-          <p>Your work stays onchain. Try loading it again in a moment.</p>
+          <p>
+            Your NFTs are safe onchain. We’re retrying automatically; you can
+            also try again now.
+          </p>
           <button className="button outline" onClick={() => refetch()}>
             Try again <RefreshCw size={15} />
           </button>
