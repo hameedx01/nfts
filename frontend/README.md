@@ -172,9 +172,10 @@ Recipients resolve through the existing mainnet ENS endpoint, which verifies rev
 - [x] One real sponsored UserOperation succeeds and emits two collection `Minted` events (IDs 3 and 4).
 - [x] Both `ownerOf` reads return the Safe address.
 - [x] The real Etherscan transaction, UserOperation hash, and gas-payment evidence are recorded above.
-- [ ] Live feed displays two separate events; verified ENS appears where configured.
-- [ ] Browser notification permission, denial fallback, and mobile layout are checked.
+- [x] Owner confirmed the live feed displayed editions #3 and #4 and a browser notification or in-page pop-up during the real batch.
+- [ ] Demonstrate a live recipient with a verified ENS name; name rendering is covered by controlled browser tests, and addresses without ENS use an address fallback.
+- [x] Owner confirmed a live pop-up; automated Chrome checks cover denied-permission fallback and mobile layout. System-level notification delivery was not separately identified in the owner’s report.
 - [x] Pimlico configuration is server-only; local Pimlico env entries were removed, and the inspected browser bundles contain neither the key variable nor the keyed upstream endpoint.
 
 
-Local Day 4 verification: TypeScript and the production build passed; 17 unit tests passed, including batch restrictions, actual Safe SDK encoding, and readable account errors. Chrome checks passed for the existing studio and for two mocked mint events, duplicate suppression, verified-name rendering, denied-notification fallback, and mobile layout. Live wallet signing and the sponsored two-mint operation are verified above. System-notification delivery and a live ENS-named recipient still require a browser demonstration; mocked UI checks are not evidence of those live behaviors.
+Local Day 4 verification: TypeScript and the production build passed; 17 unit tests passed, including batch restrictions, actual Safe SDK encoding, and readable account errors. Chrome checks passed for the existing studio and for two mocked mint events, duplicate suppression, verified-name rendering, denied-notification fallback, and mobile layout. Live wallet signing and the sponsored two-mint operation are verified above. The owner also confirmed both live events and a pop-up appeared for this batch. System-level notification delivery was not distinguished from the in-page pop-up, and a live ENS-named recipient remains unverified; controlled UI checks are not evidence of those specific live behaviors.
