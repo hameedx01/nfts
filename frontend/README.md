@@ -2,7 +2,7 @@
 
 A small NFT studio built for the Web3Bridge Day 3 assignment. Upload original artwork to public IPFS through a protected server route, mint it into the class collection on Sepolia, and browse editions with ENS owner names. Chainlink powers automatically refreshed ETH/USD reference prices and gas conversions.
 
-**Deployment:** [Edition Studio](https://nfts-lime.vercel.app/) · [Live alerts](https://nfts-lime.vercel.app/alerts). Day 4 features are deployed; the wallet-signed batch evidence is tracked below.
+**Deployment:** [Edition Studio](https://nfts-lime.vercel.app/) · [Live alerts](https://nfts-lime.vercel.app/alerts). Day 4 features are deployed; a confirmed sponsored batch and its Etherscan evidence are recorded below.
 
 ## Run locally
 
@@ -120,7 +120,7 @@ The signed upload flow currently supports ordinary EOA wallet signatures; contra
 - The dependency installation audit reports zero vulnerabilities.
 - The assignment's very short JWT-prefix scan matches a non-secret substring in the `big.js` package integrity checksum in `package-lock.json`. Do not remove or falsify integrity data to hide it. A literal zero-match result is therefore not yet satisfied; review this false positive with the mentor. No credential patterns were found in the files prepared for the initial commit; local environment files are excluded from version control.
 
-Real Pinata upload/mint, WalletConnect mobile pairing, and Vercel deployment remain unverified until services and a test wallet are configured.
+The Day 4 production deployment and real sponsored batch mint are verified below. WalletConnect mobile pairing remains a separate manual acceptance check.
 
 
 ## Day 4: smart-account batch mint
@@ -135,13 +135,28 @@ Add `PIMLICO_API_KEY` and `PIMLICO_SPONSORSHIP_POLICY_ID` to **Vercel Environmen
 
 `/api/pimlico` authenticates upstream requests on the server, fixes the chain and EntryPoint, injects the server-selected sponsorship policy, and permits only the RPC methods this flow needs. It verifies the derived Safe sender and supplied deployment data, decodes both nested calls, rejects other contracts/functions/value transfers, and rate-limits through the existing Upstash configuration. Upstream errors are replaced with messages that cannot expose the API-key URL. Keep sponsorship policy budgets and per-user limits enabled; request checks and IP limits are not a substitute for a sponsorship budget.
 
-### UserOperation evidence — awaiting the owner's wallet signature
+### Verified UserOperation evidence
 
-No live UserOperation is claimed yet. After the first successful batch, use **Copy README evidence** in the app and replace this pending section with its real UserOperation hash, Etherscan transaction link, Safe address, paymaster address, actual gas cost, and both token IDs. A UserOperation hash is distinct from its containing transaction hash; `/tx/` links must use the latter.
+[View the successful UserOperation’s containing transaction on Sepolia Etherscan](https://sepolia.etherscan.io/tx/0x6c8acaa6c84ae423560056146d3b8f5874745dbd6e689df54b963e7b959aa25c).
 
-- **Who is in From?** On the containing Etherscan transaction, From is the bundler's submitting EOA. Within the UserOperation, the sender is the user's Safe smart account.
-- **Who is in To?** The containing transaction targets the ERC-4337 EntryPoint (`0x0000000071727De22E5E9d8BAf0edAc6f37da032`). The Safe executes the two inner calls against [ClassNFT](https://sepolia.etherscan.io/address/0x3fb98718010365fc227eb09e1af85988991b2ad1).
-- **Who paid gas?** This flow requests sponsorship: the bundler fronts the transaction gas, then receives compensation through EntryPoint from the paymaster's deposit. The app displays the actual receipt's paymaster address and UserOperation gas cost; the real evidence must confirm sponsorship rather than assuming it from a successful submission.
+Verified with Sepolia RPC: transaction status `success`, block `11926924`, and EntryPoint's `UserOperationEvent.success = true`. The same transaction contains two `Minted` events from our ClassNFT contract, for IDs **3 and 4**. Independent `ownerOf(3)` and `ownerOf(4)` reads both return the Safe below; both token URIs are `ipfs://bafkreihlx2u3dfoz3iwcwhm2ptkcosexo5y7h24qpjfmgppdspxd5drvda`.
+
+| Evidence | Value |
+| --- | --- |
+| UserOperation hash | `0x4073fd8e7a7f2552b2179f2223a4aea9c0f602dde353774238cd9eb01ce6e1da` |
+| Containing transaction hash | `0x6c8acaa6c84ae423560056146d3b8f5874745dbd6e689df54b963e7b959aa25c` |
+| Smart account / UserOperation sender | `0xB59f6D467685BDFde24Fa342258f172Da67C17d8` |
+| From: bundler EOA | `0x43370398500dae4ba10669646a1FD1577407F637` |
+| To: EntryPoint | `0x0000000071727De22E5E9d8BAf0edAc6f37da032` |
+| Sponsoring paymaster | `0x777777777777AeC03fd955926DbF81597e66834C` |
+| UserOperation gas cost | `0.00034983287830012` Sepolia ETH (`349832878300120` wei) |
+| Minted tokens | [Edition #3](https://nfts-lime.vercel.app/nft/3), [Edition #4](https://nfts-lime.vercel.app/nft/4) |
+
+- **Who is in From?** Etherscan's outer transaction shows the bundler's EOA, `0x43370398500dae4ba10669646a1FD1577407F637`. The UserOperation sender is our Safe, `0xB59f6D467685BDFde24Fa342258f172Da67C17d8`; the owner wallet signed its instructions.
+- **Who is in To?** The outer transaction targets EntryPoint, `0x0000000071727De22E5E9d8BAf0edAc6f37da032`. Through EntryPoint and its ERC-4337 module, the Safe executes two inner `mint(uri)` calls against [our ClassNFT contract](https://sepolia.etherscan.io/address/0x3fb98718010365fc227eb09e1af85988991b2ad1).
+- **Who paid gas?** The receipt's `UserOperationEvent` identifies paymaster `0x777777777777AeC03fd955926DbF81597e66834C` as the sponsor. The bundler fronts the outer transaction fee and is compensated through EntryPoint from the paymaster's deposit; this operation's recorded charge is `0.00034983287830012` Sepolia ETH, not a gas payment from the owner's wallet. This is the UserOperation cost, which is distinct from the entire outer transaction's fee.
+
+A UserOperation hash is distinct from its containing transaction hash; the Etherscan `/tx/` link above uses the transaction hash.
 
 ### Live alerts and ENS
 
@@ -154,12 +169,12 @@ Recipients resolve through the existing mainnet ENS endpoint, which verifies rev
 ### Day 4 acceptance checks
 
 - [x] Production `/alerts` and the smart-account controls are deployed (commit `4044175`). The live events endpoint and authenticated Pimlico fee request both returned HTTP 200.
-- [ ] One real sponsored UserOperation succeeds and emits two collection `Minted` events.
-- [ ] Both `ownerOf` reads return the Safe address.
-- [ ] The real Etherscan evidence replaces the pending section above.
+- [x] One real sponsored UserOperation succeeds and emits two collection `Minted` events (IDs 3 and 4).
+- [x] Both `ownerOf` reads return the Safe address.
+- [x] The real Etherscan transaction, UserOperation hash, and gas-payment evidence are recorded above.
 - [ ] Live feed displays two separate events; verified ENS appears where configured.
 - [ ] Browser notification permission, denial fallback, and mobile layout are checked.
 - [x] Pimlico configuration is server-only; local Pimlico env entries were removed, and the inspected browser bundles contain neither the key variable nor the keyed upstream endpoint.
 
 
-Local Day 4 verification: TypeScript and the production build passed; 17 unit tests passed, including batch restrictions, actual Safe SDK encoding, and readable account errors. Chrome checks passed for the existing studio and for two mocked mint events, duplicate suppression, verified-name rendering, denied-notification fallback, and mobile layout. Live wallet signing and system-notification delivery still need the owner/browser demonstration above.
+Local Day 4 verification: TypeScript and the production build passed; 17 unit tests passed, including batch restrictions, actual Safe SDK encoding, and readable account errors. Chrome checks passed for the existing studio and for two mocked mint events, duplicate suppression, verified-name rendering, denied-notification fallback, and mobile layout. Live wallet signing and the sponsored two-mint operation are verified above. System-notification delivery and a live ENS-named recipient still require a browser demonstration; mocked UI checks are not evidence of those live behaviors.
