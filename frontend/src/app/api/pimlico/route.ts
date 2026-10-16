@@ -5,7 +5,7 @@ import { consumePimlico } from "@/lib/server/limits";
 import { validateStudioSender } from "@/lib/server/safe-account";
 import { PublicError } from "@/lib/server/response";
 export const runtime = "nodejs";
-export const maxDuration = 30;
+export const maxDuration = 60;
 const methods = new Set([
   "pimlico_getUserOperationGasPrice",
   "eth_estimateUserOperationGas",
@@ -133,10 +133,7 @@ export async function POST(request: Request) {
         id,
         error: {
           code: -32000,
-          message:
-            error instanceof PublicError
-              ? error.message
-              : "Invalid or unavailable account request.",
+          message: `Studio: ${error instanceof PublicError ? error.message : "Invalid or unavailable account request."}`,
         },
       },
       {

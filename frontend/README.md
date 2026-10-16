@@ -2,7 +2,7 @@
 
 A small NFT studio built for the Web3Bridge Day 3 assignment. Upload original artwork to public IPFS through a protected server route, mint it into the class collection on Sepolia, and browse editions with ENS owner names. Chainlink powers automatically refreshed ETH/USD reference prices and gas conversions.
 
-**Deployment:** [Edition Studio](https://nfts-lime.vercel.app/) · [Live alerts](https://nfts-lime.vercel.app/alerts). Day 4 deployment and a wallet-signed batch are tracked below.
+**Deployment:** [Edition Studio](https://nfts-lime.vercel.app/) · [Live alerts](https://nfts-lime.vercel.app/alerts). Day 4 features are deployed; the wallet-signed batch evidence is tracked below.
 
 ## Run locally
 
@@ -153,10 +153,13 @@ Recipients resolve through the existing mainnet ENS endpoint, which verifies rev
 
 ### Day 4 acceptance checks
 
-- [ ] Production `/alerts` and the smart-account controls are deployed.
+- [x] Production `/alerts` and the smart-account controls are deployed (commit `4044175`). The live events endpoint and authenticated Pimlico fee request both returned HTTP 200.
 - [ ] One real sponsored UserOperation succeeds and emits two collection `Minted` events.
 - [ ] Both `ownerOf` reads return the Safe address.
 - [ ] The real Etherscan evidence replaces the pending section above.
 - [ ] Live feed displays two separate events; verified ENS appears where configured.
 - [ ] Browser notification permission, denial fallback, and mobile layout are checked.
-- [ ] No Pimlico credential appears in source, browser bundles, or browser requests.
+- [x] Pimlico configuration is server-only; local Pimlico env entries were removed, and the inspected browser bundles contain neither the key variable nor the keyed upstream endpoint.
+
+
+Local Day 4 verification: TypeScript and the production build passed; 17 unit tests passed, including batch restrictions, actual Safe SDK encoding, and readable account errors. Chrome checks passed for the existing studio and for two mocked mint events, duplicate suppression, verified-name rendering, denied-notification fallback, and mobile layout. Live wallet signing and system-notification delivery still need the owner/browser demonstration above.

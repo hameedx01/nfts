@@ -5,6 +5,7 @@ import { useWalletClient, useConnection, useSwitchChain } from "wagmi";
 import { useQueryClient } from "@tanstack/react-query";
 import { decodeEventLog, formatEther, type Hex } from "viem";
 import { createStudioAccount } from "@/lib/smart-account";
+import { describeSmartAccountError } from "@/lib/smart-account-errors";
 import { batchMintCalls } from "@/lib/batch-mint";
 import { classNftAbi } from "@/lib/contracts/classNftAbi";
 import { CONTRACT, EXPLORER } from "@/lib/config";
@@ -60,13 +61,7 @@ export function SmartAccountMint({
     try {
       await action();
     } catch (e) {
-      const message =
-        e instanceof Error ? e.message : "Smart-account request failed.";
-      setError(
-        /reject|denied/i.test(message)
-          ? "The request was rejected. Your uploaded artwork is still available."
-          : message.split("Request body:")[0].slice(0, 500),
-      );
+      setError(describeSmartAccountError(e));
     } finally {
       lock.current = false;
       setStage("");
